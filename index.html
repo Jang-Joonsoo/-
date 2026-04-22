@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>저항 계산기 — Resistor Color Code Calculator</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<style>
+/* ──────────────────────────────────────
+   CSS Variables / Themes
+────────────────────────────────────── */
+:root { --dur: 0.28s ease; }
+
+[data-theme="dark"] {
+  --bg:      #0d0c12;
+  --surf:    #17151e;
+  --surf2:   #211e2b;
+  --bdr:     #2e2a3c;
+  --txt:     #ede8f8;
+  --txt2:    #7a7498;
+  --acc:     #f0a845;
+  --acc-lo:  rgba(240,168,69,.18);
+  --grid-c:  rgba(240,168,69,.04);
+  --shadow:  rgba(0,0,0,.55);
+}
+[data-theme="light"] {
+  --bg:      #f0ece2;
+  --surf:    #faf7f1;
+  --surf2:   #edead8;
+  --bdr:     #d8d0bc;
+  --txt:     #1c1814;
+  --txt2:    #857a65;
+  --acc:     #c06820;
+  --acc-lo:  rgba(192,104,32,.15);
+  --grid-c:  rgba(192,104,32,.06);
+  --shadow:  rgba(0,0,0,.18);
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid-c) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-c) 1px, transparent 1px);
+  background-size: 44px 44px;
+  color: var(--txt);
+  min-height: 100vh;
+  padding: 2.5rem 1rem 5rem;
+  transition: background-color var(--dur), color var(--dur);
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 760px; margin: 0 auto; }
+
+/* ──────────────────────────────────────
+   Header
+────────────────────────────────────── */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.4rem;
+  gap: 12px;
+}
+
+.hd-left h1 {
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+}
+.hd-left h1 em {
+  font-style: normal;
+  color: var(--acc);
+}
+.hd-left p {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--txt2);
+  margin-top: 6px;
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+}
+
+/* Theme Toggle */
+.tgl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surf2);
+  border: 1px solid var(--bdr);
+  border-radius: 99px;
+  padding: 8px 16px 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--txt2);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+.tgl:hover { border-color: var(--acc); color: var(--txt); }
+.tgl-ic { font-size: 1rem; line-height: 1; }
+
+/* ──────────────────────────────────────
+   Main Card
+────────────────────────────────────── */
+.card {
+  background: var(--surf);
+  border: 1px solid var(--bdr);
+  border-radius: 28px;
+  padding: 2.2rem 2rem;
+  box-shadow: 0 8px 60px var(--shadow);
+  transition: background var(--dur), border-color var(--dur);
+}
+
+.sec-lbl {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--txt2);
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+/* ──────────────────────────────────────
+   Band Count Selector
+────────────────────────────────────── */
+.cnt-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 2rem;
+}
+.cnt-btn {
+  max-width: 120px;
+  flex: 1;
+  background: var(--surf2);
+  border: 1px solid var(--bdr);
+  border-radius: 12px;
+  color: var(--txt2);
+  padding: 12px 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.cnt-btn.on {
+  background: var(--acc);
+  border-color: var(--acc);
+  color: #fff;
+  box-shadow: 0 4px 18px var(--acc-lo);
+}
+.cnt-btn:not(.on):hover {
+  border-color: var(--acc);
+  color: var(--txt);
+}
+
+/* ──────────────────────────────────────
+   Resistor SVG
+────────────────────────────────────── */
+.rsv-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 0.5rem 0 2.2rem;
+  padding: 0.5rem 0;
+}
+#rsv {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  overflow: visible;
+}
+
+/* ──────────────────────────────────────
+   Color Pickers
+────────────────────────────────────── */
+.pickers {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px 8px;
+  align-items: flex-start;
+  padding-bottom: 12px;
+  margin-bottom: 2rem;
+}
+
+.pk-grp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.pk-grp.sep {
+  margin-left: 4px;
+  padding-left: 12px;
+  border-left: 1px dashed var(--bdr);
+}
+
+.pk-lbl {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--txt2);
+  text-align: center;
+  white-space: pre-line;
+  line-height: 1.4;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pk-btn {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  border: 2.5px solid var(--bdr);
+  cursor: pointer;
+  outline: none;
+  position: relative;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.pk-btn::after {
+  content: '▾';
+  position: absolute;
+  bottom: 2px;
+  right: 5px;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.7);
+  line-height: 1;
+}
+[data-theme="light"] .pk-btn::after { color: rgba(0,0,0,0.4); }
+.pk-btn:hover { transform: scale(1.07); border-color: var(--acc); }
+.pk-btn.open {
+  border-color: var(--acc);
+  box-shadow: 0 0 0 4px var(--acc-lo);
+  transform: scale(1.07);
+}
+
+.pk-name {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--txt2);
+  text-align: center;
+  min-height: 14px;
+  transition: color 0.2s;
+}
+
+/* ──────────────────────────────────────
+   Color Dropdown
+────────────────────────────────────── */
+#colorDd {
+  position: fixed;
+  z-index: 9999;
+  background: var(--surf);
+  border: 1px solid var(--bdr);
+  border-radius: 18px;
+  padding: 10px;
+  display: none;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 172px;
+  box-shadow: 0 16px 48px var(--shadow);
+  animation: ddIn 0.15s ease;
+}
+#colorDd.show { display: grid; }
+
+.sw {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.sw:hover { background: var(--surf2); }
+.sw-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(255,255,255,0.14);
+}
+.sw-n {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--txt2);
+  text-align: center;
+  line-height: 1;
+}
+
+/* ──────────────────────────────────────
+   Result Section
+────────────────────────────────────── */
+.result {
+  background: var(--surf2);
+  border: 1px solid var(--bdr);
+  border-radius: 18px;
+  padding: 1.8rem 1.5rem 1.6rem;
+  transition: background var(--dur), border-color var(--dur);
+}
+
+.r-main { text-align: center; margin-bottom: 1.4rem; }
+.r-lbl {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--txt2);
+  margin-bottom: 10px;
+}
+.r-val {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--acc);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.r-val.err {
+  color: #e05858;
+  font-size: 1.2rem;
+  padding: 0.6rem 0;
+}
+
+.r-sub {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem 2.5rem;
+  border-top: 1px solid var(--bdr);
+  padding-top: 1.4rem;
+}
+.r-item { text-align: center; }
+.ri-lbl {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--txt2);
+  margin-bottom: 6px;
+}
+.ri-val {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* ──────────────────────────────────────
+   Ohm's Law Section (NEW)
+────────────────────────────────────── */
+.ohm-sec {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed var(--bdr);
+}
+.ohm-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 15px;
+  align-items: end;
+}
+.ohm-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ohm-input-wrap label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--txt2);
+  letter-spacing: 0.02em;
+}
+.ohm-field {
+  background: var(--surf);
+  border: 1px solid var(--bdr);
+  border-radius: 12px;
+  color: var(--txt);
+  padding: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+  text-align: center;
+  font-family: inherit;
+}
+.ohm-field:focus { border-color: var(--acc); }
+.ohm-res {
+  text-align: center;
+}
+.ohm-res-val {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--txt);
+  margin-top: 4px;
+}
+
+/* Value pulse animation */
+@keyframes valpulse {
+  0%   { transform: scale(1);    opacity: 1; }
+  25%  { transform: scale(1.03); opacity: 0.9; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+.pulse { animation: valpulse 0.3s ease; }
+
+/* ──────────────────────────────────────
+   Color reference table
+────────────────────────────────────── */
+.ref-toggle {
+  background: none;
+  border: 1px solid var(--bdr);
+  border-radius: 10px;
+  color: var(--txt2);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 10px 18px;
+  margin: 1.8rem auto 0;
+  display: block;
+  transition: all 0.2s;
+}
+.ref-toggle:hover { border-color: var(--acc); color: var(--txt); }
+
+.ref-table-wrap {
+  display: none;
+  margin-top: 1.2rem;
+  overflow-x: auto;
+}
+.ref-table-wrap.open { display: block; }
+
+.ref-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.ref-table th, .ref-table td {
+  padding: 10px 12px;
+  border: 1px solid var(--bdr);
+  text-align: center;
+  white-space: nowrap;
+}
+.ref-table th {
+  background: var(--surf2);
+  color: var(--txt2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.ref-table td:first-child {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  font-weight: 600;
+}
+.ref-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1px solid rgba(0,0,0,0.15);
+  flex-shrink: 0;
+}
+
+/* ──────────────────────────────────────
+   Footer
+────────────────────────────────────── */
+footer {
+  text-align: center;
+  margin-top: 2.5rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--txt2);
+  letter-spacing: 0.02em;
+  opacity: 0.7;
+}
+
+/* ──────────────────────────────────────
+   Responsive
+────────────────────────────────────── */
+@media (max-width: 520px) {
+  body { padding: 1.5rem 0.75rem 4rem; }
+  .card { padding: 1.5rem 1rem; border-radius: 20px; }
+  header { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .r-val { font-size: 2.2rem; }
+  .hd-left h1 { font-size: 1.5rem; }
+  .ohm-grid { grid-template-columns: 1fr; gap: 15px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="hd-left">
+      <h1>저항 <em>계산기</em></h1>
+      <p>RESISTOR COLOR CODE CALCULATOR</p>
+    </div>
+    <button class="tgl" id="tglBtn" onclick="toggleTheme()">
+      <span class="tgl-ic" id="tglIc">🌙</span>
+      <span id="tglTxt">다크 모드</span>
+    </button>
+  </header>
+
+  <div class="card">
+
+    <div class="sec-lbl">밴드 수 선택</div>
+    <div class="cnt-row">
+      <button class="cnt-btn on" onclick="setBandCount(4,this)">4밴드</button>
+      <button class="cnt-btn"    onclick="setBandCount(5,this)">5밴드</button>
+      <button class="cnt-btn"    onclick="setBandCount(6,this)">6밴드</button>
+    </div>
+
+    <div class="rsv-wrap">
+      <svg id="rsv" viewBox="0 0 500 120" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="gBody" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#a07838"/>
+            <stop offset="16%"  stop-color="#efd080"/>
+            <stop offset="48%"  stop-color="#d4a658"/>
+            <stop offset="80%"  stop-color="#b07c30"/>
+            <stop offset="100%" stop-color="#7a5020"/>
+          </linearGradient>
+          <linearGradient id="gLead" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#909090"/>
+            <stop offset="35%"  stop-color="#f4f4f4"/>
+            <stop offset="100%" stop-color="#606060"/>
+          </linearGradient>
+          <linearGradient id="gJunc" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#c8a868"/>
+            <stop offset="40%"  stop-color="#e8c888"/>
+            <stop offset="100%" stop-color="#906828"/>
+          </linearGradient>
+          <linearGradient id="gShine" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="rgba(255,255,255,0.52)"/>
+            <stop offset="50%"  stop-color="rgba(255,255,255,0.06)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+          </linearGradient>
+          <filter id="fShadow" x="-5%" y="-25%" width="110%" height="160%">
+            <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="rgba(0,0,0,0.5)"/>
+          </filter>
+          <clipPath id="cpBody">
+            <rect x="88" y="22" width="324" height="76" rx="38" ry="38"/>
+          </clipPath>
+        </defs>
+        <rect x="0"   y="56" width="95"  height="8" rx="4" fill="url(#gLead)"/>
+        <rect x="405" y="56" width="95"  height="8" rx="4" fill="url(#gLead)"/>
+        <ellipse cx="90"  cy="60" rx="15" ry="20" fill="url(#gJunc)"/>
+        <ellipse cx="410" cy="60" rx="15" ry="20" fill="url(#gJunc)"/>
+        <rect x="88" y="22" width="324" height="76" rx="38" ry="38" fill="url(#gBody)" filter="url(#fShadow)"/>
+        <g id="bandsG" clip-path="url(#cpBody)"></g>
+        <line id="svgSep" x1="280" y1="24" x2="280" y2="96" stroke="rgba(60,40,10,0.20)" stroke-width="1.5" stroke-dasharray="3,4"/>
+        <rect x="88" y="22" width="324" height="76" rx="38" ry="38" fill="url(#gShine)" clip-path="url(#cpBody)"/>
+        <rect x="88" y="22" width="324" height="76" rx="38" ry="38" fill="none" stroke="rgba(0,0,0,0.14)" stroke-width="1.5"/>
+      </svg>
+    </div>
+
+    <div class="sec-lbl">색띠 선택</div>
+    <div class="pickers" id="pkRow"></div>
+
+    <div class="result">
+      <div class="r-main">
+        <div class="r-lbl">저항값</div>
+        <div class="r-val" id="rVal">— Ω</div>
+      </div>
+      <div class="r-sub">
+        <div class="r-item">
+          <div class="ri-lbl">허용오차</div>
+          <div class="ri-val" id="rTol">—</div>
+        </div>
+        <div class="r-item" id="rTcItem" style="display:none">
+          <div class="ri-lbl">온도계수</div>
+          <div class="ri-val" id="rTc">—</div>
+        </div>
+        <div class="r-item">
+          <div class="ri-lbl">허용 범위</div>
+          <div class="ri-val" id="rRange">—</div>
+        </div>
+      </div>
+
+      <div class="ohm-sec">
+        <div class="ohm-grid">
+          <div class="ohm-input-wrap">
+            <label>인가 전압 (V)</label>
+            <input type="number" id="vInput" class="ohm-field" value="5" step="0.1" oninput="calculateOhm()">
+          </div>
+          <div class="ohm-res">
+            <div class="ri-lbl">전류 (I)</div>
+            <div class="ohm-res-val" id="iOut">—</div>
+          </div>
+          <div class="ohm-res">
+            <div class="ri-lbl">소모 전력 (P)</div>
+            <div class="ohm-res-val" id="pOut">—</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <button class="ref-toggle" id="refToggleBtn" onclick="toggleRef()">
+      ▸ 색코드 참고표 보기
+    </button>
+    <div class="ref-table-wrap" id="refWrap">
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th>색상</th>
+            <th>숫자값</th>
+            <th>배수</th>
+            <th>허용오차</th>
+            <th>온도계수</th>
+          </tr>
+        </thead>
+        <tbody id="refTbody"></tbody>
+      </table>
+    </div>
+
+  </div><footer>© 저항 색코드 계산기 &nbsp;·&nbsp; Resistor Color Code Calculator</footer>
+</div><div id="colorDd"></div>
+
+<script>
+/* ================================================
+   DATA
+================================================ */
+const C = {
+  black:  { hex:'#1c1c1c', digit:0, mult:1,       tol:null,      tc:250,  lbl:'검정' },
+  brown:  { hex:'#7B3510', digit:1, mult:10,       tol:'±1%',     tc:100,  lbl:'갈색' },
+  red:    { hex:'#C82020', digit:2, mult:100,      tol:'±2%',     tc:50,   lbl:'빨강' },
+  orange: { hex:'#E04800', digit:3, mult:1e3,      tol:null,      tc:15,   lbl:'주황' },
+  yellow: { hex:'#D0A800', digit:4, mult:1e4,      tol:null,      tc:25,   lbl:'노랑' },
+  green:  { hex:'#1A7820', digit:5, mult:1e5,      tol:'±0.5%',   tc:null, lbl:'초록' },
+  blue:   { hex:'#0830B8', digit:6, mult:1e6,      tol:'±0.25%',  tc:10,   lbl:'파랑' },
+  violet: { hex:'#6810A0', digit:7, mult:1e7,      tol:'±0.1%',   tc:5,    lbl:'보라' },
+  gray:   { hex:'#787878', digit:8, mult:1e8,      tol:'±0.05%',  tc:null, lbl:'회색' },
+  white:  { hex:'#E0E0E0', digit:9, mult:1e9,      tol:null,      tc:null, lbl:'흰색' },
+  gold:   { hex:'#C8A020', digit:null, mult:0.1,   tol:'±5%',     tc:null, lbl:'금색' },
+  silver: { hex:'#A8A8A8', digit:null, mult:0.01,  tol:'±10%',    tc:null, lbl:'은색' },
+};
+
+const POOLS = {
+  digit: ['black','brown','red','orange','yellow','green','blue','violet','gray','white'],
+  mult:  ['black','brown','red','orange','yellow','green','blue','violet','gray','white','gold','silver'],
+  tol:   ['brown','red','green','blue','violet','gray','gold','silver'],
+  tc:    ['brown','red','orange','yellow','blue','violet'],
+};
+
+const CFGS = {
+  4:[
+    {key:'b1', lbl:'1번 띠\n(첫째 자리)', type:'digit'},
+    {key:'b2', lbl:'2번 띠\n(둘째 자리)', type:'digit'},
+    {key:'b3', lbl:'3번 띠\n(배수)',       type:'mult'},
+    {key:'b4', lbl:'4번 띠\n(허용오차)',   type:'tol', sep:true},
+  ],
+  5:[
+    {key:'b1', lbl:'1번 띠\n(첫째 자리)', type:'digit'},
+    {key:'b2', lbl:'2번 띠\n(둘째 자리)', type:'digit'},
+    {key:'b3', lbl:'3번 띠\n(셋째 자리)', type:'digit'},
+    {key:'b4', lbl:'4번 띠\n(배수)',       type:'mult'},
+    {key:'b5', lbl:'5번 띠\n(허용오차)',   type:'tol', sep:true},
+  ],
+  6:[
+    {key:'b1', lbl:'1번 띠\n(첫째 자리)', type:'digit'},
+    {key:'b2', lbl:'2번 띠\n(둘째 자리)', type:'digit'},
+    {key:'b3', lbl:'3번 띠\n(셋째 자리)', type:'digit'},
+    {key:'b4', lbl:'4번 띠\n(배수)',       type:'mult'},
+    {key:'b5', lbl:'5번 띠\n(허용오차)',   type:'tol', sep:true},
+    {key:'b6', lbl:'6번 띠\n(온도계수)',   type:'tc'},
+  ],
+};
+
+const BPOS = {
+  4:[{x:142,w:25},{x:173,w:25},{x:204,w:25},{x:342,w:25}],
+  5:[{x:135,w:22},{x:161,w:22},{x:187,w:22},{x:213,w:22},{x:343,w:22}],
+  6:[{x:132,w:19},{x:156,w:19},{x:180,w:19},{x:204,w:19},{x:322,w:19},{x:350,w:19}],
+};
+
+const SEP_X = { 4:284, 5:286, 6:268 };
+
+const SEL = { b1:'brown', b2:'black', b3:'red', b4:'gold', b5:'brown', b6:'brown' };
+
+let bandCount = 4;
+let ddKey = null, ddBtn = null;
+
+/* ================================================
+   SVG BANDS
+================================================ */
+function svgEl(tag) {
+  return document.createElementNS('http://www.w3.org/2000/svg', tag);
+}
+
+function renderBands() {
+  const g = document.getElementById('bandsG');
+  g.innerHTML = '';
+  const cfg = CFGS[bandCount];
+  const pos = BPOS[bandCount];
+
+  cfg.forEach((band, i) => {
+    const p = pos[i];
+    const hex = C[SEL[band.key]]?.hex ?? '#888';
+    
+    const r = svgEl('rect');
+    r.setAttribute('x', p.x);
+    r.setAttribute('y', '22');
+    r.setAttribute('width', p.w);
+    r.setAttribute('height', '76');
+    r.setAttribute('fill', hex);
+    g.appendChild(r);
+    
+    const hl = svgEl('rect');
+    hl.setAttribute('x', p.x);
+    hl.setAttribute('y', '22');
+    hl.setAttribute('width', p.w);
+    hl.setAttribute('height', '30');
+    hl.setAttribute('fill', 'rgba(255,255,255,0.16)');
+    g.appendChild(hl);
+  });
+  const sep = document.getElementById('svgSep');
+  const sx = SEP_X[bandCount];
+  sep.setAttribute('x1', sx); sep.setAttribute('x2', sx);
+}
+
+/* ================================================
+   PICKERS
+================================================ */
+function renderPickers() {
+  const row = document.getElementById('pkRow');
+  row.innerHTML = '';
+  CFGS[bandCount].forEach(band => {
+    const grp = document.createElement('div');
+    grp.className = 'pk-grp' + (band.sep ? ' sep' : '');
+    
+    const lbl = document.createElement('div');
+    lbl.className = 'pk-lbl';
+    lbl.textContent = band.lbl;
+    
+    const btn = document.createElement('button');
+    btn.className = 'pk-btn';
+    btn.dataset.key  = band.key;
+    btn.dataset.type = band.type;
+    btn.style.backgroundColor = C[SEL[band.key]]?.hex ?? '#888';
+    btn.addEventListener('click', e => openDd(e, band.key, band.type));
+    
+    const nm = document.createElement('div');
+    nm.className = 'pk-name';
+    nm.id = 'nm-' + band.key;
+    nm.textContent = C[SEL[band.key]]?.lbl ?? '';
+    
+    grp.appendChild(lbl);
+    grp.appendChild(btn);
+    grp.appendChild(nm);
+    row.appendChild(grp);
+  });
+}
+
+/* ================================================
+   DROPDOWN
+================================================ */
+function openDd(e, key, type) {
+  e.stopPropagation();
+  const btn = e.currentTarget;
+  const dd  = document.getElementById('colorDd');
+  
+  if (ddKey === key && dd.classList.contains('show')) { closeDd(); return; }
+  
+  if (ddBtn) ddBtn.classList.remove('open');
+  ddKey = key; ddBtn = btn;
+  btn.classList.add('open');
+  
+  dd.innerHTML = '';
+  POOLS[type].forEach(name => {
+    const d  = C[name];
+    const sw = document.createElement('div');
+    sw.className = 'sw' + (SEL[key] === name ? ' sel' : '');
+    
+    const dot = document.createElement('div');
+    dot.className = 'sw-dot';
+    dot.style.backgroundColor = d.hex;
+    
+    const lbl = document.createElement('div');
+    lbl.className = 'sw-n';
+    lbl.textContent = d.lbl;
+    
+    sw.appendChild(dot);
+    sw.appendChild(lbl);
+    sw.addEventListener('click', () => pick(key, name));
+    dd.appendChild(sw);
+  });
+  
+  const rect = btn.getBoundingClientRect();
+  const ddW  = 172;
+  let left   = rect.left + rect.width / 2 - ddW / 2;
+  let top    = rect.bottom + 8;
+  left = Math.max(8, Math.min(left, window.innerWidth - ddW - 8));
+  if (top + 280 > window.innerHeight) top = rect.top - 280 - 8;
+  dd.style.left = left + 'px';
+  dd.style.top  = top  + 'px';
+  dd.classList.add('show');
+}
+
+function closeDd() {
+  document.getElementById('colorDd').classList.remove('show');
+  if (ddBtn) ddBtn.classList.remove('open');
+  ddKey = null; ddBtn = null;
+}
+
+function pick(key, name) {
+  SEL[key] = name;
+  const btn = document.querySelector(`.pk-btn[data-key="${key}"]`);
+  if (btn) btn.style.backgroundColor = C[name].hex;
+  const nm = document.getElementById('nm-' + key);
+  if (nm) nm.textContent = C[name].lbl;
+  closeDd();
+  renderBands();
+  calculate();
+}
+
+/* ================================================
+   CALCULATION
+================================================ */
+function fmtVal(v) {
+  if (!isFinite(v) || isNaN(v)) return '— Ω';
+  const a = Math.abs(v);
+  let n, u;
+  if      (a >= 1e9) { n = v/1e9; u = 'GΩ'; }
+  else if (a >= 1e6) { n = v/1e6; u = 'MΩ'; }
+  else if (a >= 1e3) { n = v/1e3; u = 'kΩ'; }
+  else               { n = v;     u = 'Ω';  }
+  return parseFloat(n.toPrecision(4)).toString() + ' ' + u;
+}
+
+function calculate() {
+  const cfg    = CFGS[bandCount];
+  const rVal   = document.getElementById('rVal');
+  const rTol   = document.getElementById('rTol');
+  const rRange = document.getElementById('rRange');
+  const rTc    = document.getElementById('rTc');
+  const rTcItm = document.getElementById('rTcItem');
+  
+  rTcItm.style.display = bandCount === 6 ? '' : 'none';
+  
+  let digits=[], mult=null, tol=null, tc=null;
+  
+  for (const band of cfg) {
+    const d = C[SEL[band.key]];
+    if (!d) continue;
+    if (band.type === 'digit') {
+      if (d.digit === null) {
+        rVal.className = 'r-val err';
+        rVal.textContent = '잘못된 색상 조합입니다';
+        rTol.textContent = rRange.textContent = rTc.textContent = '—';
+        window.currentResistanceVal = undefined;
+        calculateOhm();
+        return;
+      }
+      digits.push(d.digit);
+    } else if (band.type === 'mult') {
+      mult = d.mult;
+    } else if (band.type === 'tol') {
+      tol = d.tol;
+    } else if (band.type === 'tc') {
+      tc = d.tc;
+    }
+  }
+  
+  let base = 0;
+  for (const d of digits) base = base * 10 + d;
+  const val = base * mult;
+  
+  window.currentResistanceVal = val;
+  
+  rVal.className = 'r-val';
+  void rVal.offsetWidth;
+  rVal.classList.add('pulse');
+  rVal.textContent = fmtVal(val);
+  
+  rTol.textContent = tol ?? '—';
+  
+  if (tol) {
+    const p  = parseFloat(tol.replace(/[±%]/g,'')) / 100;
+    rRange.textContent = fmtVal(val*(1-p)) + ' ~ ' + fmtVal(val*(1+p));
+  } else {
+    rRange.textContent = '—';
+  }
+  rTc.textContent = tc !== null ? tc + ' ppm/°C' : '—';
+  
+  calculateOhm();
+}
+
+function calculateOhm() {
+  const v = parseFloat(document.getElementById('vInput').value) || 0;
+  const iOut = document.getElementById('iOut');
+  const pOut = document.getElementById('pOut');
+
+  const r = window.currentResistanceVal;
+
+  if (!isFinite(r) || isNaN(r) || r === undefined) {
+    iOut.textContent = '—';
+    pOut.textContent = '—';
+    return;
+  }
+
+  if (r === 0) {
+    iOut.textContent = '∞';
+    pOut.textContent = '∞';
+    return;
+  }
+
+  const i = v / r;
+  const p = v * i;
+
+  iOut.textContent = fmtUnit(i, 'A');
+  pOut.textContent = fmtUnit(p, 'W');
+}
+
+function fmtUnit(val, baseUnit) {
+  if (val === 0) return '0 ' + baseUnit;
+  const a = Math.abs(val);
+  if (a >= 1) return val.toPrecision(4) + ' ' + baseUnit;
+  if (a >= 1e-3) return (val * 1e3).toPrecision(4) + ' m' + baseUnit;
+  if (a >= 1e-6) return (val * 1e6).toPrecision(4) + ' µ' + baseUnit;
+  return val.toExponential(2) + ' ' + baseUnit;
+}
+
+/* ================================================
+   BAND COUNT
+================================================ */
+function setBandCount(n, btn) {
+  bandCount = n;
+  document.querySelectorAll('.cnt-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  closeDd();
+  renderPickers();
+  renderBands();
+  calculate();
+}
+
+/* ================================================
+   THEME
+================================================ */
+function toggleTheme() {
+  const html = document.documentElement;
+  const dark = html.dataset.theme === 'dark';
+  html.dataset.theme = dark ? 'light' : 'dark';
+  document.getElementById('tglIc').textContent  = dark ? '🌙' : '☀️';
+  document.getElementById('tglTxt').textContent = dark ? '다크 모드' : '라이트 모드';
+}
+
+/* ================================================
+   REFERENCE TABLE
+================================================ */
+let refOpen = false;
+function toggleRef() {
+  refOpen = !refOpen;
+  document.getElementById('refWrap').classList.toggle('open', refOpen);
+  document.getElementById('refToggleBtn').textContent =
+    (refOpen ? '▾ 색코드 참고표 닫기' : '▸ 색코드 참고표 보기');
+}
+
+function buildRefTable() {
+  const tb = document.getElementById('refTbody');
+  Object.entries(C).forEach(([name, d]) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <span class="ref-swatch" style="background:${d.hex}"></span>
+        ${d.lbl}
+      </td>
+      <td>${d.digit !== null ? d.digit : '<span class="ref-null">—</span>'}</td>
+      <td>${fmtMult(d.mult)}</td>
+      <td>${d.tol ?? '<span class="ref-null">—</span>'}</td>
+      <td>${d.tc !== null ? d.tc+' ppm/°C' : '<span class="ref-null">—</span>'}</td>
+    `;
+    tb.appendChild(tr);
+  });
+}
+
+function fmtMult(m) {
+  if (m === null) return '<span class="ref-null">—</span>';
+  if (m >= 1e9) return '×'+m/1e9+'G';
+  if (m >= 1e6) return '×'+m/1e6+'M';
+  if (m >= 1e3) return '×'+m/1e3+'k';
+  return '×'+m;
+}
+
+/* ================================================
+   INIT
+================================================ */
+document.addEventListener('click', e => {
+  const dd = document.getElementById('colorDd');
+  if (dd.classList.contains('show') && !dd.contains(e.target)) closeDd();
+});
+
+document.getElementById('rVal').addEventListener('animationend', function () {
+  this.classList.remove('pulse');
+});
+
+buildRefTable();
+renderPickers();
+renderBands();
+calculate();
+</script>
+</body>
+</html>
