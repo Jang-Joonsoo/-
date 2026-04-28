@@ -84,25 +84,61 @@ header {
   opacity: 0.8;
 }
 
-/* Theme Toggle */
+/* Reroll Button (pickers area) */
+.pickers-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.reroll-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--surf2);
+  border: 1.5px solid var(--bdr);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  color: var(--txt2);
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  flex-shrink: 0;
+  line-height: 1;
+  padding: 0;
+}
+.reroll-btn:hover { border-color: var(--acc); color: var(--txt); }
+.reroll-btn:active { transform: scale(0.93); }
+.reroll-ic {
+  display: inline-block;
+  transition: transform 0.4s ease;
+  line-height: 1;
+  font-style: normal;
+}
+.reroll-btn:hover .reroll-ic { transform: rotate(-180deg); }
 .tgl {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   background: var(--surf2);
   border: 1px solid var(--bdr);
   border-radius: 99px;
-  padding: 8px 16px 8px 12px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  padding: 8px 15px 8px 11px;
+  font-size: 0.82rem;
+  font-weight: 600;
   color: var(--txt2);
   cursor: pointer;
   white-space: nowrap;
   transition: border-color 0.2s, color 0.2s, background 0.2s;
   flex-shrink: 0;
+  font-family: inherit;
+  letter-spacing: 0.01em;
 }
 .tgl:hover { border-color: var(--acc); color: var(--txt); }
-.tgl-ic { font-size: 1rem; line-height: 1; }
+.tgl:active { transform: scale(0.96); }
+.tgl-ic { font-size: 0.95rem; line-height: 1; }
 
 /* ──────────────────────────────────────
    Main Card
@@ -241,6 +277,26 @@ header {
   transform: scale(1.07);
 }
 
+.pk-btn[data-unset] {
+  border-style: dashed !important;
+  opacity: 0.55;
+  background: var(--surf2) !important;
+}
+.pk-btn[data-unset]::before {
+  content: '+';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 200;
+  color: var(--txt2);
+  line-height: 1;
+}
+.pk-btn[data-unset]::after { display: none; }
+.pk-btn[data-unset]:hover { opacity: 0.9; }
+
 .pk-name {
   font-size: 0.75rem;
   font-weight: 500;
@@ -350,18 +406,71 @@ header {
 }
 
 /* ──────────────────────────────────────
-   Ohm's Law Section (NEW)
+   Ohm's Law Card (separate)
 ────────────────────────────────────── */
-.ohm-sec {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px dashed var(--bdr);
+.ohm-card {
+  background: var(--surf);
+  border: 1px solid var(--bdr);
+  border-radius: 20px;
+  padding: 1.4rem 1.5rem 1.5rem;
+  margin-top: 1rem;
+  transition: background var(--dur), border-color var(--dur);
+  position: relative;
+}
+.ohm-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.2rem;
+}
+.ohm-card-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--acc);
+  background: var(--acc-lo);
+  border: 1px solid var(--acc);
+  border-radius: 6px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+.ohm-card-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--txt2);
+  letter-spacing: 0.01em;
+}
+.ohm-formula-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+.ohm-formula-pill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--txt2);
+  background: var(--surf2);
+  border: 1px solid var(--bdr);
+  border-radius: 8px;
+  padding: 4px 10px;
+  letter-spacing: 0.01em;
 }
 .ohm-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 15px;
-  align-items: end;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  gap: 0;
+  align-items: center;
+}
+.ohm-arrow {
+  font-size: 1.1rem;
+  color: var(--bdr);
+  padding: 0 6px;
+  padding-bottom: 0;
+  align-self: flex-end;
+  margin-bottom: 4px;
 }
 .ohm-input-wrap {
   display: flex;
@@ -369,14 +478,15 @@ header {
   gap: 8px;
 }
 .ohm-input-wrap label {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--txt2);
   letter-spacing: 0.02em;
+  text-align: center;
 }
 .ohm-field {
-  background: var(--surf);
-  border: 1px solid var(--bdr);
+  background: var(--surf2);
+  border: 1.5px solid var(--acc);
   border-radius: 12px;
   color: var(--txt);
   padding: 10px;
@@ -384,19 +494,31 @@ header {
   font-weight: 700;
   width: 100%;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
   text-align: center;
   font-family: inherit;
 }
-.ohm-field:focus { border-color: var(--acc); }
+.ohm-field:focus {
+  border-color: var(--acc);
+  box-shadow: 0 0 0 3px var(--acc-lo);
+}
 .ohm-res {
   text-align: center;
 }
+.ohm-res-box {
+  background: var(--surf2);
+  border: 1px solid var(--bdr);
+  border-radius: 12px;
+  padding: 10px 6px;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .ohm-res-val {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--txt);
-  margin-top: 4px;
 }
 
 /* Value pulse animation */
@@ -487,7 +609,8 @@ footer {
   header { flex-direction: column; align-items: flex-start; gap: 10px; }
   .r-val { font-size: 2.2rem; }
   .hd-left h1 { font-size: 1.5rem; }
-  .ohm-grid { grid-template-columns: 1fr; gap: 15px; }
+  .ohm-grid { grid-template-columns: 1fr; gap: 10px; }
+  .ohm-arrow { display: none; }
 }
 </style>
 </head>
@@ -499,10 +622,12 @@ footer {
       <h1>저항 <em>계산기</em></h1>
       <p>RESISTOR COLOR CODE CALCULATOR</p>
     </div>
-    <button class="tgl" id="tglBtn" onclick="toggleTheme()">
-      <span class="tgl-ic" id="tglIc">🌙</span>
-      <span id="tglTxt">다크 모드</span>
-    </button>
+    <div style="display:flex;align-items:center;flex-shrink:0;">
+      <button class="tgl" id="tglBtn" onclick="toggleTheme()">
+        <span class="tgl-ic" id="tglIc">🌙</span>
+        <span id="tglTxt">다크 모드</span>
+      </button>
+    </div>
   </header>
 
   <div class="card">
@@ -558,7 +683,12 @@ footer {
       </svg>
     </div>
 
-    <div class="sec-lbl">색띠 선택</div>
+    <div class="pickers-header">
+      <div class="sec-lbl" style="margin-bottom:0">색띠 선택</div>
+      <button class="reroll-btn" onclick="resetAll()" title="초기화">
+        <span class="reroll-ic">↺</span>
+      </button>
+    </div>
     <div class="pickers" id="pkRow"></div>
 
     <div class="result">
@@ -581,24 +711,40 @@ footer {
         </div>
       </div>
 
-      <div class="ohm-sec">
-        <div class="ohm-grid">
-          <div class="ohm-input-wrap">
-            <label>인가 전압 (V)</label>
-            <input type="number" id="vInput" class="ohm-field" value="5" step="0.1" oninput="calculateOhm()">
-          </div>
-          <div class="ohm-res">
-            <div class="ri-lbl">전류 (I)</div>
+    </div><!-- /.result -->
+
+    <!-- ── 옴의 법칙 / 전력 계산 카드 ── -->
+    <div class="ohm-card">
+      <div class="ohm-card-header">
+        <span class="ohm-card-badge">V = IR · P = VI</span>
+        <span class="ohm-card-title">옴의 법칙 &amp; 전력 계산</span>
+      </div>
+      <div class="ohm-formula-row">
+        <span class="ohm-formula-pill">I = V ÷ R</span>
+        <span class="ohm-formula-pill">P = V × I</span>
+        <span class="ohm-formula-pill">P = V² ÷ R</span>
+      </div>
+      <div class="ohm-grid">
+        <div class="ohm-input-wrap">
+          <label>인가 전압 (V)</label>
+          <input type="number" id="vInput" class="ohm-field" value="" step="0.1" placeholder="전압 입력" oninput="calculateOhm()">
+        </div>
+        <div class="ohm-arrow">→</div>
+        <div class="ohm-res">
+          <div class="ri-lbl">전류 (I)</div>
+          <div class="ohm-res-box">
             <div class="ohm-res-val" id="iOut">—</div>
           </div>
-          <div class="ohm-res">
-            <div class="ri-lbl">소모 전력 (P)</div>
+        </div>
+        <div class="ohm-arrow">→</div>
+        <div class="ohm-res">
+          <div class="ri-lbl">소모 전력 (P)</div>
+          <div class="ohm-res-box">
             <div class="ohm-res-val" id="pOut">—</div>
           </div>
         </div>
       </div>
-
-    </div>
+    </div><!-- /.ohm-card -->
 
     <button class="ref-toggle" id="refToggleBtn" onclick="toggleRef()">
       ▸ 색코드 참고표 보기
@@ -679,7 +825,8 @@ const BPOS = {
 
 const SEP_X = { 4:284, 5:286, 6:268 };
 
-const SEL = { b1:'brown', b2:'black', b3:'red', b4:'gold', b5:'brown', b6:'brown' };
+const DEFAULT_SEL = { b1:null, b2:null, b3:null, b4:null, b5:null, b6:null };
+const SEL = { ...DEFAULT_SEL };
 
 let bandCount = 4;
 let ddKey = null, ddBtn = null;
@@ -699,7 +846,12 @@ function renderBands() {
 
   cfg.forEach((band, i) => {
     const p = pos[i];
-    const hex = C[SEL[band.key]]?.hex ?? '#888';
+    const isUnset = !SEL[band.key];
+    const hex = isUnset ? '#888888' : (C[SEL[band.key]]?.hex ?? '#888888');
+    const alpha = isUnset ? 0.28 : 1;
+    
+    const bandG = svgEl('g');
+    bandG.style.opacity = alpha;
     
     const r = svgEl('rect');
     r.setAttribute('x', p.x);
@@ -707,7 +859,7 @@ function renderBands() {
     r.setAttribute('width', p.w);
     r.setAttribute('height', '76');
     r.setAttribute('fill', hex);
-    g.appendChild(r);
+    bandG.appendChild(r);
     
     const hl = svgEl('rect');
     hl.setAttribute('x', p.x);
@@ -715,7 +867,8 @@ function renderBands() {
     hl.setAttribute('width', p.w);
     hl.setAttribute('height', '30');
     hl.setAttribute('fill', 'rgba(255,255,255,0.16)');
-    g.appendChild(hl);
+    bandG.appendChild(hl);
+    g.appendChild(bandG);
   });
   const sep = document.getElementById('svgSep');
   const sx = SEP_X[bandCount];
@@ -740,13 +893,17 @@ function renderPickers() {
     btn.className = 'pk-btn';
     btn.dataset.key  = band.key;
     btn.dataset.type = band.type;
-    btn.style.backgroundColor = C[SEL[band.key]]?.hex ?? '#888';
+    btn.style.backgroundColor = SEL[band.key] ? (C[SEL[band.key]]?.hex ?? '#888') : 'var(--surf2)';
+    if (!SEL[band.key]) {
+      btn.style.border = '2.5px dashed var(--bdr)';
+      btn.dataset.unset = 'true';
+    }
     btn.addEventListener('click', e => openDd(e, band.key, band.type));
     
     const nm = document.createElement('div');
     nm.className = 'pk-name';
     nm.id = 'nm-' + band.key;
-    nm.textContent = C[SEL[band.key]]?.lbl ?? '';
+    nm.textContent = SEL[band.key] ? (C[SEL[band.key]]?.lbl ?? '') : '선택';
     
     grp.appendChild(lbl);
     grp.appendChild(btn);
@@ -809,7 +966,11 @@ function closeDd() {
 function pick(key, name) {
   SEL[key] = name;
   const btn = document.querySelector(`.pk-btn[data-key="${key}"]`);
-  if (btn) btn.style.backgroundColor = C[name].hex;
+  if (btn) {
+    btn.style.backgroundColor = C[name].hex;
+    btn.style.border = '';
+    delete btn.dataset.unset;
+  }
   const nm = document.getElementById('nm-' + key);
   if (nm) nm.textContent = C[name].lbl;
   closeDd();
@@ -840,6 +1001,17 @@ function calculate() {
   const rTcItm = document.getElementById('rTcItem');
   
   rTcItm.style.display = bandCount === 6 ? '' : 'none';
+
+  // 아직 선택되지 않은 띠가 있으면 대기 상태 표시
+  const allSet = cfg.every(band => SEL[band.key] !== null);
+  if (!allSet) {
+    rVal.className = 'r-val';
+    rVal.textContent = '— Ω';
+    rTol.textContent = rRange.textContent = rTc.textContent = '—';
+    window.currentResistanceVal = undefined;
+    calculateOhm();
+    return;
+  }
   
   let digits=[], mult=null, tol=null, tc=null;
   
@@ -890,13 +1062,14 @@ function calculate() {
 }
 
 function calculateOhm() {
-  const v = parseFloat(document.getElementById('vInput').value) || 0;
+  const raw = document.getElementById('vInput').value;
+  const v = (raw === '' || raw === null) ? NaN : parseFloat(raw);
   const iOut = document.getElementById('iOut');
   const pOut = document.getElementById('pOut');
 
   const r = window.currentResistanceVal;
 
-  if (!isFinite(r) || isNaN(r) || r === undefined) {
+  if (!isFinite(r) || isNaN(r) || r === undefined || isNaN(v)) {
     iOut.textContent = '—';
     pOut.textContent = '—';
     return;
@@ -925,12 +1098,25 @@ function fmtUnit(val, baseUnit) {
 }
 
 /* ================================================
+   RESET
+================================================ */
+function resetAll() {
+  Object.keys(SEL).forEach(k => SEL[k] = null);
+  document.getElementById('vInput').value = '';
+  closeDd();
+  renderPickers();
+  renderBands();
+  calculate();
+}
+
+/* ================================================
    BAND COUNT
 ================================================ */
 function setBandCount(n, btn) {
   bandCount = n;
   document.querySelectorAll('.cnt-btn').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
+  Object.keys(SEL).forEach(k => SEL[k] = null);
   closeDd();
   renderPickers();
   renderBands();
